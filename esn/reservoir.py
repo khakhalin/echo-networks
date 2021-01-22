@@ -1,35 +1,23 @@
-class Reservoir:
-    """ Create basic echo-networks model with the predefined internal state
+import numpy
+from ._create_reservoir import Creator
+
+class Reservoir(object):
+    """ Create a echo-networks model with the predefined tuning.
 
     Args:
-        n_internal (int): Number of processing neurons in internal reservoir
+        n_nodes (int): Number of processing neurons in internal reservoir
         leak (float):  leakage for reservoir state update
-
-
     """
 
-    def __init__(self, n_nodes=20, leak=None, network_type=None):
+    def __init__(self, n_nodes=20, network_type=None, leak=None):
         self.n_nodes = n_nodes
-        # probability of edge existence
+        self.network_type = network_type
         self.leak = leak
-        self._weights = None
+
+        self.graph = Creator.make_graph(n_nodes, network_type)
+        self.weights = None
         self.weights_in = None
         self.weights_out = None
-        self.network_type = network_type
-        self.graph_dict = None
-
-
-    @property
-    def weights(self):
-        return self._weights
-
-    @weights.setter
-    def internal_weights(self):
-        pass
-    def set_weights_in(self):
-        #we need init weights
-        pass
-
 
     def fit(self, x, y):
         """
@@ -46,8 +34,12 @@ class Reservoir:
 
         pass
 
+    def run(self, n_steps):
+        # Run n_steps forward
+        pass
+
     def forward(self):
-        #return reservoir state
+        # Make 1 step forward, update reservoir state
         pass
 
 
