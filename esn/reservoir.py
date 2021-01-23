@@ -1,5 +1,5 @@
 import numpy
-from ._create_reservoir import Creator
+from ._create_reservoir import creator
 
 class Reservoir(object):
     """ Create a echo-networks model with the predefined tuning.
@@ -14,10 +14,15 @@ class Reservoir(object):
         self.network_type = network_type
         self.leak = leak
 
-        self.graph = Creator.make_graph(n_nodes, network_type)
-        self.weights = None
-        self.weights_in = None
-        self.weights_out = None
+        self.graph = creator.make_graph(n_nodes, network_type)
+        # self.weights = creator.graph_to_weights(self.graph, inhibition='distributed')
+        # self.weights_in = creator.weights_in(self.n_nodes)
+        # self.weights_out = creator.weights_out(self.n_nodes
+        # self.activation = creator.activation('tanh')
+
+        # I'm actually not sure here. It feels like creator would benefit from knowing everything
+        # about SELF, like network type and what not. Maybe make creator a mix-in, and inherit to it?
+        # Or is there a benefit in keeping these
 
     def fit(self, x, y):
         """

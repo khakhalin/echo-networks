@@ -1,6 +1,6 @@
 
 from .reservoir import *
-from .data import *
+from .data import Data
 from .utils import *
 
 """
