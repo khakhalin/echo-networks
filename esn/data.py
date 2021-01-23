@@ -24,12 +24,15 @@ class Data():
             pass
 
         # decorator
-        def generate(self, n_points, seed=None, integration_step=0.01, sampling_step=0.02):
+        def generate(self, n_points, seed=None, integration_step=0.01, sampling_step=None):
             """Decorator that runs the model, then downsamples it."""
+            if not sampling_step: # No need to downsample
+                _, xy = self._run(n_points, seed, integration_step)
+                return xy[:,0], xy[:,1]
             full_n = round(n_points * sampling_step / integration_step * 1.1)  # With some excess just in case
             if sampling_step < integration_step:
                 raise ValueError('Integration step should be <= sampling_step')
-            time,xy = self._run(full_n, seed, integration_step, sampling_step)
+            time,xy = self._run(full_n, seed, integration_step)
             # Now downsample
             ind = np.floor(time / sampling_step) # Steps
             ind = np.hstack(([0], ind[1:] - ind[:-1])).astype(bool) # Where steps change
@@ -43,7 +46,7 @@ class Data():
                 params = (10, 8/3, 28) # Sigma, beta, rho
             self.sigma, self.beta, self.rho = params
 
-        def _run(self, n_points=100, seed=None, integration_step=0.01, sampling_step=0.1):
+        def _run(self, n_points=100, seed=None, integration_step=0.01):
             """Lorenz system, with manual resampling"""
             if not seed:
                 seed = (1, 0, 1)
