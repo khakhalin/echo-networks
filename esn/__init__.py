@@ -1,5 +1,5 @@
 
-from .reservoir import *
+from .reservoir import Reservoir
 from .data import Data
 from .utils import *
 

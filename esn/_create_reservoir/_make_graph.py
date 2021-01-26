@@ -6,17 +6,18 @@ def make_graph(n_nodes=20, n_edges=None, network_type='erdos'):
 
     Parameters:
     n_nodes: number of nodes
-    network_tpe: erdos, ws (for Watts-Strogatz)
+    n_edges: number of edges (optinal)
+    network_tpe: 'erdos', 'ws' (for Watts-Strogatz; default)
     """
     if not n_edges:
         n_edges = n_nodes*2
     if network_type == 'erdos':
-        gdict = _make_random(n_nodes, n_edges)
+        graph_dict = _make_random(n_nodes, n_edges)
     elif network_type == 'ws':
-        gdict = _make_ws(n_nodes, n_edges) # Actually there's also a beta parameter, but we park it for now
+        graph_dict = _make_ws(n_nodes, n_edges) # Actually there's also a beta parameter, but we park it for now
     else:
         raise ValueError('Unrecognized graph type.')
-    return gdict
+    return graph_dict
 
 def _make_random(n, e=None):
     """Create Erdos graph."""
