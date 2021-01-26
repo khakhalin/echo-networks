@@ -15,10 +15,10 @@ class Reservoir(object):
         self.leak = leak
 
         self.graph = creator.make_graph(n_nodes, network_type)
-        # self.weights = creator.graph_to_weights(self.graph, inhibition='distributed')
+        self.weights = creator.graph_to_weights(self.graph, self.n_nodes, inhibition='alternating')
         # self.weights_in = creator.weights_in(self.n_nodes)
         # self.weights_out = creator.weights_out(self.n_nodes)
-        # self.activation = creator.activation('tanh')
+        self.activation = creator.activation('tanh')
 
         # I'm actually not sure here. It feels like creator would benefit from knowing everything
         # about SELF, like network type and what not. Maybe make creator a mix-in, and inherit to it?
