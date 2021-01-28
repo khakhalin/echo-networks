@@ -1,8 +1,5 @@
 import numpy as np
 
-# # self.weights = creator.graph_to_weights(self.graph, inhibition='distributed')
-
-@staticmethod
 def graph_to_weights(graph_dict, n_nodes=None, inhibition='alternating', params=None):
     """Creates a numpy weights matrix from a graph.
 

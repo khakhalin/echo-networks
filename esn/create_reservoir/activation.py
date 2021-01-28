@@ -1,7 +1,5 @@
 import numpy as np
 
-
-@staticmethod
 def activation(name='tanh'):
     """Returns an activation function."""
     if name == 'tanh':

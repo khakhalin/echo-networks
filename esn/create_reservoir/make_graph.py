@@ -1,6 +1,5 @@
 import numpy as np
 
-@staticmethod
 def make_graph(n_nodes=20, n_edges=None, network_type='erdos'):
     """Creates a graph dictionary.
 

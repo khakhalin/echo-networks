@@ -1,7 +1,5 @@
 import numpy as np
 
-
-@staticmethod
 def weights_in(n_nodes, mode='alternating'):
     """Creaes a vector of input weights.
 

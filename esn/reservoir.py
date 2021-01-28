@@ -1,5 +1,5 @@
 import numpy as np
-from ._create_reservoir import creator
+from . import create_reservoir as creator
 
 class Reservoir(object):
     """ Create a echo-networks model with the predefined tuning.
