@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Data():
     @classmethod
     def create_source(cls, process='lorenz', params=None, fileName=None):
@@ -11,13 +12,13 @@ class Data():
         params: parameters for ths system (optional)
         fileName: string, if time series needs to be loaded from a file (optional)
         """
-        if process=='lorenz':
+        if process == 'lorenz':
             return cls.Lorenz(params)
         raise ValueError('Chaotic process name not recognized.')
 
-
     class _DataSource(object):
         """Abstract class for data generators"""
+
         # abstractmethod
         def _run(self, n_points, seed, integration_step):
             """Returns 2 numpy arrays: x and y."""
@@ -26,24 +27,24 @@ class Data():
         # decorator
         def generate(self, n_points, seed=None, integration_step=0.01, sampling_step=None):
             """Decorator that runs the model, then downsamples it."""
-            if not sampling_step: # No need to downsample
+            if not sampling_step:  # No need to downsample
                 _, xy = self._run(n_points, seed, integration_step)
-                return xy[:,0], xy[:,1]
+                return xy[:, 0], xy[:, 1]
             full_n = round(n_points * sampling_step / integration_step * 1.1)  # With some excess just in case
             if sampling_step < integration_step:
                 raise ValueError('Integration step should be <= sampling_step')
-            time,xy = self._run(full_n, seed, integration_step)
+            time, xy = self._run(full_n, seed, integration_step)
             # Now downsample
-            ind = np.floor(time / sampling_step) # Steps
-            ind = np.hstack(([0], ind[1:] - ind[:-1])).astype(bool) # Where steps change
-            return xy[ind, 0][:n_points], xy[ind, 1][:n_points]     # Actual downsampling
-
+            ind = np.floor(time / sampling_step)  # Steps
+            ind = np.hstack(([0], ind[1:] - ind[:-1])).astype(bool)  # Where steps change
+            return xy[ind, 0][:n_points], xy[ind, 1][:n_points]  # Actual downsampling
 
     class Lorenz(_DataSource):
         """Lorenz system."""
+
         def __init__(self, params=None):
             if not params:
-                params = (10, 8/3, 28) # Sigma, beta, rho
+                params = (10, 8 / 3, 28)  # Sigma, beta, rho
             self.sigma, self.beta, self.rho = params
 
         def _run(self, n_points=100, seed=None, integration_step=0.01):
@@ -61,4 +62,4 @@ class Data():
                            z + integration_step * (x * y - self.beta * z))
                 time += integration_step
                 history[i, :] = (time, x, z)
-            return (history[:, 0], history[:, 1:]) # time, then x and z together
+            return history[:, 0], history[:, 1:]  # time, then x and z together
