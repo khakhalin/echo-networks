@@ -16,6 +16,7 @@ def test_lorenz_zero_seed():
     assert expected == pytest.approx(x, rel=1e-3)
     assert expected == pytest.approx(y, rel=1e-3)
 
+
 def test_lorenz_zero_attract():
     params = (10, 8 / 3, -1)
     data = Data.Lorenz(params=params)
