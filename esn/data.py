@@ -16,6 +16,7 @@ class Data():
             return cls.Lorenz(params)
         raise ValueError('Chaotic process name not recognized.')
 
+
     class _DataSource(object):
         """Abstract class for data generators"""
 
@@ -27,7 +28,7 @@ class Data():
         # decorator
         def generate(self, n_points, seed=None, integration_step=0.01, sampling_step=None):
             """Decorator that runs the model, then downsamples it."""
-            if not sampling_step:  # No need to downsample
+            if sampling_step is None:  # No need to downsample
                 _, xy = self._run(n_points, seed, integration_step)
                 return xy[:, 0], xy[:, 1]
             full_n = round(n_points * sampling_step / integration_step * 1.1)  # With some excess just in case
@@ -39,17 +40,18 @@ class Data():
             ind = np.hstack(([0], ind[1:] - ind[:-1])).astype(bool)  # Where steps change
             return xy[ind, 0][:n_points], xy[ind, 1][:n_points]  # Actual downsampling
 
+
     class Lorenz(_DataSource):
         """Lorenz system."""
 
         def __init__(self, params=None):
-            if not params:
+            if params is None:
                 params = (10, 8 / 3, 28)  # Sigma, beta, rho
             self.sigma, self.beta, self.rho = params
 
         def _run(self, n_points=100, seed=None, integration_step=0.01):
             """Lorenz system, with manual resampling"""
-            if not seed:
+            if seed is None:
                 seed = (1, 0, 1)
             if len(seed) != 3:
                 seed = (0, 0, seed[0])

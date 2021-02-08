@@ -1,6 +1,7 @@
 import numpy as np
 
-def graph_to_weights(graph_dict, n_nodes=None, inhibition='alternating', params=None):
+
+def graph_to_weights(graph_dict, n_nodes=None, inhibition='alternating', alpha=None):
     """Creates a numpy weights matrix from a graph.
 
     parameters:
@@ -9,9 +10,10 @@ def graph_to_weights(graph_dict, n_nodes=None, inhibition='alternating', params=
         'none' - no inhibition
         'alternating' - checkerboard pattern, with even edges excitatory
         'distributed' - all edges are excitatory, but all missing edges are weakly inhibitory
+    alpha (float): the value of weak inhibition for the 'distributed' option
     """
 
-    if not n_nodes: # Try go guess n_nodes from the graph_dict itself
+    if n_nodes is None: # Try go guess n_nodes from the graph_dict itself
         keys,values = zip(*graph_dict.items())
         n_nodes = max(list(keys) + [i for edges in values for i in edges]) + 1
     weights = np.zeros((n_nodes, n_nodes))
@@ -22,11 +24,9 @@ def graph_to_weights(graph_dict, n_nodes=None, inhibition='alternating', params=
     if inhibition == 'alternating':
         for i in range(n_nodes):
             for j in range(n_nodes):
-                weights[i,j] *= ((i+j) % 2)*2 - 1
+                weights[i,j] *= ((i+j) % 2)*2 - 1 # Checkerboard
     elif inhibition == 'distributed':
-        if params:
-            alpha = params
-        else:
+        if alpha is None:
             alpha = 0.1
         weights = weights*(1 + alpha) - alpha
 
