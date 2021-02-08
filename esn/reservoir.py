@@ -20,28 +20,13 @@ class Reservoir(object):
         self.graph = creator.make_graph(n_nodes, network_type=network_type)
         self.weights = creator.graph_to_weights(self.graph, n_nodes, inhibition='alternating')
         self.weights_in = creator.weights_in(n_nodes)
-        self.weights_out = np.zeros(n_nodes)  # We could put it in a function, but why?
+        self.weights_out = None      # Originally the model is not fit
         self.activation = creator.activation('tanh')
 
         self.state = np.zeros(n_nodes)
 
     def __str__(self):
         return f"Reservoir of {self.n_nodes} nodes, `{self.network_type}` type."
-
-    def fit(self, x, y):
-        """
-        Fit model with input X and y
-        Args:
-            x (1d numpy array):  input series
-            y (1d numpy array):  output series
-
-        Returns: a vector of output weights (that is also saved as weights_out in the self object).
-        """
-        # x and y are supposed to be column-vectors
-        x = x[:, np.newaxis]
-        x = x[:, np.newaxis]
-        self.weights_out = (y.T @ x) @ np.linalg.pinv(x.T @ x)
-        return self.weights_out
 
 
     def _forward(self, drive=None):
@@ -58,8 +43,8 @@ class Reservoir(object):
         """Run the model several steps forward, driving it with input signal.
 
         Arguments:
+            input (1D numpy): input signal
             n_steps (int): how many steps to run
-            input (1D numpy): input to drive it with
             """
         if n_steps is None:
             n_steps = len(input)
@@ -73,16 +58,35 @@ class Reservoir(object):
             history[i_step, :] = self.state
         return history
 
-    def predict(self, x):
+
+    def fit(self, x, y):
+        """
+        Fit model with input X and y
+        Args:
+            x (1d numpy array):  input series
+            y (1d numpy array):  output series
+
+        Returns: a vector of output weights (that is also saved as weights_out in the self object).
+        """
+        if len(y.shape) == 1: # Simple vectors needs to be turned to column-vectors
+            y = y[:, np.newaxis]
+        history = self.run(x)
+        self.weights_out = (y.T @ history) @ np.linalg.pinv(history.T @ history)
+        return self.weights_out.squeeze()
+
+
+    def predict(self, x, n_steps=None):
         """
         Args:
-            x (numpy array): input series
+            x (numpy array): input signal
+            n_steps (int): for how long to run
 
         Returns:
             y (numpy array): output
-
         """
-        # Error if model is not fitted, else
-        self.forward()
-        # y =
-        return y
+        if n_steps is None:
+            n_steps = len(x)
+        if self.weights_out is None:
+            raise Exception('The model needs to be fit first.')
+        history = self. run(x, n_steps)
+        return history @ self.weights_out.T
