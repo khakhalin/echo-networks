@@ -32,7 +32,11 @@ def test_lorenz_zero_attract():
     assert y.size == 10
     assert np.allclose(expected_x, x)
     assert expected_y == pytest.approx(y, rel=1e-4)
-    assert True
+    x1, y1 = data.generate(10, 0.0, integration_step=0.01) # Scalar seed
+    x2, y2 = data.generate(10, 0.1, integration_step=0.01)
+    assert not (x1 == x2).all() # Different seeds should give different values
+    x2, y2 = data.generate(10, 0.0, integration_step=0.02)
+    assert np.allclose(y1[8], y2[4], atol=0.01) # Resampling test
 
     ## test graphics in chaotic stage
     #def test_plot_lorenz_chaotic(self):

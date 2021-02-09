@@ -76,7 +76,7 @@ class Reservoir(object):
         self.bias_out = np.mean(y)
         history = self.run((x - self.input_norm[0])/self.input_norm[1])
         self.weights_out = ((y.T - self.bias_out) @ history) @ np.linalg.pinv(history.T @ history)
-        return self.weights_out.squeeze()
+        return self # In scikit-learn style, fit is supposed to return self
 
 
     def predict(self, x, n_steps=None):

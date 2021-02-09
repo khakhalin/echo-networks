@@ -52,9 +52,9 @@ class Data():
         def _run(self, n_points=100, seed=None, integration_step=0.01):
             """Lorenz system, with manual resampling"""
             if seed is None:
-                seed = (1, 0, 1)
-            if len(seed) != 3:
-                seed = (0, 0, seed[0])
+                seed = (1.0, 0.0, 1.0)
+            if np.isscalar(seed):
+                seed = (1.0, 0.0, seed) # We don't want [0,0,0] as a starting point, as it's trivial
             (x, y, z) = seed
             history = np.zeros((n_points, 3))
             time = 0
