@@ -20,7 +20,9 @@ class Reservoir(object):
         self.graph = creator.make_graph(n_nodes, network_type=network_type)
         self.weights = creator.graph_to_weights(self.graph, n_nodes, inhibition='alternating')
         self.weights_in = creator.weights_in(n_nodes)
+        self.input_norm = None       # Inputs should be normalized
         self.weights_out = None      # Originally the model is not fit
+        self.bias_out = None         # Intercept.
         self.activation = creator.activation('tanh')
 
         self.state = np.zeros(n_nodes)
@@ -70,8 +72,10 @@ class Reservoir(object):
         """
         if len(y.shape) == 1: # Simple vectors needs to be turned to column-vectors
             y = y[:, np.newaxis]
-        history = self.run(x)
-        self.weights_out = (y.T @ history) @ np.linalg.pinv(history.T @ history)
+        self.input_norm = [np.mean(x), np.std(x)]
+        self.bias_out = np.mean(y)
+        history = self.run((x - self.input_norm[0])/self.input_norm[1])
+        self.weights_out = ((y.T - self.bias_out) @ history) @ np.linalg.pinv(history.T @ history)
         return self.weights_out.squeeze()
 
 
@@ -88,5 +92,5 @@ class Reservoir(object):
             n_steps = len(x)
         if self.weights_out is None:
             raise Exception('The model needs to be fit first.')
-        history = self. run(x, n_steps)
-        return history @ self.weights_out.T
+        history = self. run((x - self.input_norm[0])/self.input_norm[1], n_steps)
+        return history @ self.weights_out.T + self.bias_out
