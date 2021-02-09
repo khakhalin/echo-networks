@@ -1,15 +1,19 @@
 import pytest
 from esn import create_reservoir as creator
+from esn import utils
 import numpy as np
 
 
-def test_basic_graphs():
+def test_make_graphs():
+    n_nodes = 4
+    n_edges = 4
     for net_type in ['erdos', 'ws']:
-        g = creator.make_graph(n_nodes=20, n_edges=10, network_type=net_type)
-        assert isinstance(g, dict)
-        assert len(g.keys()) <= 20 # Left-side nodes
-        assert len(set([i for k,v in g.items() for i in v])) <= 20 # Right side nodes
-        assert len(set([tuple(sorted([i,j])) for i,v in g.items() for j in v])) == 10 # n_edges
+        for i in range(100): # Generate a bunch of random graphs
+            g = creator.make_graph(n_nodes=n_nodes, n_edges=n_edges, network_type=net_type)
+            assert isinstance(g, dict)
+            assert len(g.keys()) <= 20 # Left-side nodes
+            assert len(set([i for k,v in g.items() for i in v])) <= 20 # Right side nodes
+            assert len(utils.edges(g)) == n_edges, f"graph: {g}"  # n_edges
 
 
 def test_activation_functions():

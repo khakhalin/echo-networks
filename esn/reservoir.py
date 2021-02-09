@@ -61,22 +61,26 @@ class Reservoir(object):
         return history
 
 
-    def fit(self, x, y):
+    def fit(self, x, y, skip=None):
         """
         Fit model with input X and y
         Args:
             x (1d numpy array):  input series
             y (1d numpy array):  output series
+            skip (int): how many first points to ignore (default: min(n_time / 4, n_nodes*4)
 
         Returns: a vector of output weights (that is also saved as weights_out in the self object).
         """
         if len(y.shape) == 1: # Simple vectors needs to be turned to column-vectors
             y = y[:, np.newaxis]
+        if skip is None:
+            skip = min(self.n_nodes*4 , len(y) // 4)
         self.input_norm = [np.mean(x), np.std(x)]
         self.bias_out = np.mean(y)
         history = self.run((x - self.input_norm[0])/self.input_norm[1])
-        self.weights_out = ((y.T - self.bias_out) @ history) @ np.linalg.pinv(history.T @ history)
-        return self # In scikit-learn style, fit is supposed to return self
+        self.weights_out = (((y[skip:].T - self.bias_out) @ history[skip:, :]) @
+                            np.linalg.pinv(history[skip:, :].T @ history[skip:, :]))
+        return self      # In scikit-learn style, fit is supposed to return self
 
 
     def predict(self, x, n_steps=None):
