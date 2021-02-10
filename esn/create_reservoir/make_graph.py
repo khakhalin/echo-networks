@@ -20,7 +20,7 @@ def make_graph(n_nodes=20, n_edges=None, network_type='erdos'):
 
 def _make_erdos(n, e):
     """Create Erdos graph with N nodes and E edges."""
-    edges = [(i,j) for j in range(n) for i in range(j)]
+    edges = [(i,j) for j in range(n) for i in range(n) if i != j]
     edges = [edges[i] for i in np.random.choice(len(edges), e, replace=False)]
     g = {i:list(set([j for k,j in edges if k==i])) for i in range(n)}
     return g

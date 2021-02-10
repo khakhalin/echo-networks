@@ -5,10 +5,10 @@ import numpy as np
 
 
 def test_make_graphs():
-    n_nodes = 4
-    n_edges = 4
     for net_type in ['erdos', 'ws']:
         for i in range(100): # Generate a bunch of random graphs
+            n_nodes = np.random.randint(4, 20)
+            n_edges = np.random.randint(1, max(n_nodes, n_nodes*(n_nodes-2))) # Not too dense
             g = creator.make_graph(n_nodes=n_nodes, n_edges=n_edges, network_type=net_type)
             assert isinstance(g, dict)
             assert len(g.keys()) <= 20 # Left-side nodes
