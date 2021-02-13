@@ -8,12 +8,6 @@ class utils():
     """A collection of relevant utilities."""
 
     @staticmethod
-    def loss(y1, y2):
-        """Mean Squared Error loss."""
-        return np.sum(np.square(np.array(y1) - np.array(y2)))/len(y1)
-
-
-    @staticmethod
     def edges(g):
         """Returns a set of graph edges (as tuples)"""
         return set([tuple([i, j]) for i, v in g.items() for j in v])

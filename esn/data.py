@@ -31,7 +31,7 @@ class Data():
             if sampling_step is None:  # No need to downsample
                 _, xy = self._run(n_points, seed, integration_step)
                 return xy[:, 0], xy[:, 1]
-            full_n = round(n_points * sampling_step / integration_step * 1.1)  # With some excess just in case
+            full_n = int(round(n_points * sampling_step / integration_step * 1.1)) # With some excess just in case
             if sampling_step < integration_step:
                 raise ValueError('Integration step should be <= sampling_step')
             time, xy = self._run(full_n, seed, integration_step)
@@ -65,3 +65,9 @@ class Data():
                 time += integration_step
                 history[i, :] = (time, x, z)
             return history[:, 0], history[:, 1:]  # time, then x and z together
+
+
+    @staticmethod
+    def loss(y1, y2):
+        """MSE, Mean Squared Error loss."""
+        return np.sum(np.square(np.array(y1) - np.array(y2))) / len(y1)

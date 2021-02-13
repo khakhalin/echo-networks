@@ -38,6 +38,12 @@ def test_lorenz_zero_attract():
     x2, y2 = data.generate(10, 0.0, integration_step=0.02)
     assert np.allclose(y1[8], y2[4], atol=0.01) # Resampling test
 
+
+def test_loss():
+    """Test MSE loss function."""
+    assert np.allclose(Data.loss([0, 0], [2, 1]), 5 / 2)
+    assert np.allclose(Data.loss([0, 0], np.array([1, 1])), 1)
+
     ## test graphics in chaotic stage
     #def test_plot_lorenz_chaotic(self):
     #    params = (10, 8 / 3, 28)

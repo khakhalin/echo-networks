@@ -35,7 +35,7 @@ class Reservoir(object):
         """Make 1 step forward, update reservoir state.
         If input is not provided, perform self-generation."""
         if not drive:
-            drive = self.state.T @ self.weights_out
+            drive = self.state @ self.weights_out.T + self.bias_out  # Try to self-drive
         self.state = (self.state * self.leak +
                       self.alpha * self.activation((self.weights.T @ self.state) +
                                                    self.weights_in * drive))
@@ -83,7 +83,7 @@ class Reservoir(object):
         return self      # In scikit-learn style, fit is supposed to return self
 
 
-    def predict(self, x, n_steps=None):
+    def predict(self, x, length=None):
         """
         Args:
             x (numpy array): input signal
@@ -92,9 +92,9 @@ class Reservoir(object):
         Returns:
             y (numpy array): output
         """
-        if n_steps is None:
-            n_steps = len(x)
+        if length is None:
+            length = len(x)
         if self.weights_out is None:
             raise Exception('The model needs to be fit first.')
-        history = self. run((x - self.input_norm[0])/self.input_norm[1], n_steps)
-        return history @ self.weights_out.T + self.bias_out
+        history = self. run((x - self.input_norm[0])/self.input_norm[1], length)
+        return (history @ self.weights_out.T + self.bias_out).squeeze()
