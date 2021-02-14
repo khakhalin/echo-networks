@@ -4,7 +4,7 @@ import numpy as np
 
 
 def test_reservoir_integration():
-    """Integration test, minimal case of actual reservoir use."""
+    """Integration test, minimal case, mostly with defaults."""
     data = Data.create_source('lorenz')
     x,y = data.generate(1000)
     model = Reservoir(100)
@@ -13,7 +13,7 @@ def test_reservoir_integration():
     z = model.predict(x)
     loss = Data.loss(y[points_to_skip:], z[points_to_skip:])
     assert loss > 0
-    assert loss < 1  # This one is a bit risky, but a typical value with these settings is 1e-4
+    assert loss < 1  # A typical value with these settings is 1e-4 (overfitted)
 
 
 def test_reservoir_predict():
