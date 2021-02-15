@@ -7,10 +7,13 @@ class Reservoir(object):
 
     Args:
         n_nodes (int): Number of processing neurons in internal reservoir
-        leak (float):  leakage for reservoir state update
+        network_type (str): ws, erdos
+        leak (float):  leakage for reservoir state update. Default=0.95
+        alpha (float): integration step. Default=0.05
+        inhibition (str): alternating (default), distributed, none
     """
 
-    def __init__(self, n_nodes=20, network_type='ws', leak=0.95, alpha=0.05):
+    def __init__(self, n_nodes=20, network_type='ws', leak=0.95, alpha=0.05, inhibition='alternating'):
         self.n_nodes = n_nodes
         self.network_type = network_type
         self.leak = leak
@@ -18,7 +21,7 @@ class Reservoir(object):
 
         # Creator is a stateless all-static-methods utility class
         self.graph = creator.make_graph(n_nodes, network_type=network_type)
-        self.weights = creator.graph_to_weights(self.graph, n_nodes, inhibition='alternating')
+        self.weights = creator.graph_to_weights(self.graph, n_nodes, inhibition=inhibition)
         self.weights_in = creator.weights_in(n_nodes)
         self.input_norm = None       # Inputs should be normalized
         self.weights_out = None      # Originally the model is not fit
@@ -37,7 +40,7 @@ class Reservoir(object):
         if not drive:
             drive = self.state @ self.weights_out.T + self.bias_out  # Try to self-drive
         self.state = (self.state * self.leak +
-                      self.alpha * self.activation((self.weights.T @ self.state) +
+                      self.alpha * sel  f.activation((self.weights.T @ self.state) +
                                                    self.weights_in * drive))
 
 

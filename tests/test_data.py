@@ -54,6 +54,4 @@ def test_data_sampling():
     assert np.allclose(y1[-1], y2[-1], atol=0.01)
     assert np.allclose(y2[-1], y3[-1], atol=0.01)
     assert np.allclose(y3[-1], y4[-1], atol=0.01)
-    _, y1 = data.generate(8, 0.0, sampling_step=1)  # Same, but with huge steps
-    _, y2 = data.generate(4, 0.0, sampling_step=2)
-    assert np.allclose(y1[-1], y2[-1], atol=0.01)
+

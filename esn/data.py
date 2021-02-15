@@ -33,7 +33,13 @@ class Data():
                 return xy[:, 0], xy[:, 1]
             full_n = int(round(n_points * sampling_step / integration_step * 1.1)) # With some excess just in case
             if sampling_step < integration_step:
-                raise ValueError('Integration step should be <= sampling_step')
+                integration_step = sampling_step
+                # Warning here?
+                # raise ValueError('Integration step should be <= sampling_step')
+            if integration_step > 0.03: # Numerical instabilities happen here
+                pass  # Maybe make a warning that this is not gonna be numerically stable?
+            if full_n > 1000000:
+                pass  #M Maybe make a warning that it will be too slow?
             time, xy = self._run(full_n, seed, integration_step)
             # Now downsample
             ind = np.floor(time / sampling_step)  # Steps
