@@ -32,24 +32,28 @@ def test_lorenz_zero_attract():
     assert y.size == 10
     assert np.allclose(expected_x, x)
     assert expected_y == pytest.approx(y, rel=1e-4)
+
+def test_lorenz_seed():
+    data = Data.Lorenz()
     x1, y1 = data.generate(10, 0.0, integration_step=0.01) # Scalar seed
     x2, y2 = data.generate(10, 0.1, integration_step=0.01)
     assert not (x1 == x2).all() # Different seeds should give different values
+
+def test_data_integration():
+    data = Data.Lorenz()
+    x1, y1 = data.generate(10, 0.0, integration_step=0.01)  # Scalar seed
     x2, y2 = data.generate(10, 0.0, integration_step=0.02)
-    assert np.allclose(y1[8], y2[4], atol=0.01) # Resampling test
+    assert np.allclose(y1[8], y2[4], atol=0.01)
 
-
-def test_loss():
-    """Test MSE loss function."""
-    assert np.allclose(Data.loss([0, 0], [2, 1]), 5 / 2)
-    assert np.allclose(Data.loss([0, 0], np.array([1, 1])), 1)
-
-    ## test graphics in chaotic stage
-    #def test_plot_lorenz_chaotic(self):
-    #    params = (10, 8 / 3, 28)
-    #    data = Data.Lorenz(params=params)
-    #    seed = (0, 1, 1.05)
-    #    x, y = data.generate(1000, seed, integration_step=0.01)
-    #    fig = plot_data(x,y,title='Lorenz')
-    #    fig.show()
-    #    return fig
+def test_data_sampling():
+    data = Data.Lorenz()
+    _, y1 = data.generate(16, 0.0, sampling_step=0.02)  # Scalar seed
+    _, y2 = data.generate(8, 0.0, sampling_step=0.04)
+    _, y3 = data.generate(4, 0.0, sampling_step=0.08)
+    _, y4 = data.generate(2, 0.0, sampling_step=0.16)
+    assert np.allclose(y1[-1], y2[-1], atol=0.01)
+    assert np.allclose(y2[-1], y3[-1], atol=0.01)
+    assert np.allclose(y3[-1], y4[-1], atol=0.01)
+    _, y1 = data.generate(8, 0.0, sampling_step=1)  # Same, but with huge steps
+    _, y2 = data.generate(4, 0.0, sampling_step=2)
+    assert np.allclose(y1[-1], y2[-1], atol=0.01)

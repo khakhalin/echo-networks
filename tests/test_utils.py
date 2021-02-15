@@ -5,3 +5,8 @@ import numpy as np
 
 def test_edges():
     assert utils.edges({0:[1,2], 1:[0]}) == {(0,1), (0,2), (1,0)}
+
+def test_loss():
+    """Test MSE loss function."""
+    assert np.allclose(utils.loss([0, 0], [2, 1]), 5 / 2)
+    assert np.allclose(utils.loss([0, 0], np.array([1, 1])), 1)

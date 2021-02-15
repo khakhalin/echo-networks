@@ -43,7 +43,6 @@ class Data():
 
     class Lorenz(_DataSource):
         """Lorenz system."""
-
         def __init__(self, params=None):
             if params is None:
                 params = (10, 8 / 3, 28)  # Sigma, beta, rho
@@ -66,8 +65,3 @@ class Data():
                 history[i, :] = (time, x, z)
             return history[:, 0], history[:, 1:]  # time, then x and z together
 
-
-    @staticmethod
-    def loss(y1, y2):
-        """MSE, Mean Squared Error loss."""
-        return np.sum(np.square(np.array(y1) - np.array(y2))) / len(y1)

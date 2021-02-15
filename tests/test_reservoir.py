@@ -1,5 +1,5 @@
 import pytest
-from esn import Data, Reservoir
+from esn import Data, Reservoir, utils
 import numpy as np
 
 
@@ -11,7 +11,7 @@ def test_reservoir_integration():
     points_to_skip = 200
     model.fit(x, y, skip=points_to_skip)
     z = model.predict(x)
-    loss = Data.loss(y[points_to_skip:], z[points_to_skip:])
+    loss = utils.loss(y[points_to_skip:], z[points_to_skip:])
     assert loss > 0
     assert loss < 1  # A typical value with these settings is 1e-4 (overfitted)
 
