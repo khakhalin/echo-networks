@@ -9,18 +9,16 @@ class Reservoir(object):
         n_nodes (int): Number of processing neurons in internal reservoir
         n_edges (int): Number of edges. Default = n_nodes*2
         network_type (str): ws, erdos
-        leak (float):  leakage for reservoir state update. Default=0.95
-        alpha (float): integration step. Default=0.05
+        leak (float):  leak (aka alpha) for reservoir state update. Default=0.05
         inhibition (str): alternating (default), distributed, none
     """
 
     def __init__(self, n_nodes=20, n_edges=None,
-                 network_type='ws', leak=0.95, alpha=0.05,
+                 network_type='ws', leak=0.05,
                  inhibition='alternating', weights_in='alternating'):
         self.n_nodes = n_nodes
         self.network_type = network_type
         self.leak = leak
-        self.alpha = alpha
 
         if n_edges is None:
             n_edges = n_nodes*2 if n_nodes>3 else 2  # Heuristic that doesn't break for very small n_edges
@@ -45,8 +43,8 @@ class Reservoir(object):
         If input is not provided, perform self-generation."""
         if not drive:
             drive = self.state @ self.weights_out.T + self.bias_out  # Try to self-drive
-        self.state = (self.state * self.leak +
-                      self.alpha * self.activation((self.weights.T @ self.state) +
+        self.state = (self.state * (1-self.leak) +
+                      self.leak * self.activation((self.weights.T @ self.state) +
                                                    self.weights_in * drive))
 
 
