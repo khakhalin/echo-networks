@@ -40,7 +40,7 @@ class Reservoir(object):
         if not drive:
             drive = self.state @ self.weights_out.T + self.bias_out  # Try to self-drive
         self.state = (self.state * self.leak +
-                      self.alpha * sel  f.activation((self.weights.T @ self.state) +
+                      self.alpha * self.activation((self.weights.T @ self.state) +
                                                    self.weights_in * drive))
 
 

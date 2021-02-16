@@ -22,12 +22,16 @@ def test_activation_functions():
 
 
 def test_graph_to_weights():
-    w = creator.graph_to_weights({0: [0, 1], 1:[0]}, inhibition='none')
-    assert (w == np.array([[1, 1], [1, 0]])).all()
-    w = creator.graph_to_weights({0: [0, 1], 1: [0]}, inhibition='alternating')
-    assert (w == np.array([[-1, 1], [1, 0]])).all()
-    w = creator.graph_to_weights({0: [0, 1], 1: [0]}, inhibition='distributed', alpha=0.2)
-    assert (w == np.array([[1, 1], [1, -0.2]])).all()
+    w = creator.graph_to_weights({0: [1], 1:[0]}, inhibition='none')
+    assert (w == np.array([[0, 1], [1, 0]])).all()
+    w = creator.graph_to_weights({0: [1,0], 1: [0]}, inhibition='none') # Loops should be removed
+    assert (w == np.array([[0, 1], [1, 0]])).all()
+    w = creator.graph_to_weights({0: [1,2], 1: [0]}, inhibition='alternating')
+    assert (w == np.array([[0, 1, -1], [1, 0, 0], [0, 0, 0]])).all()
+    w = creator.graph_to_weights({0: [1], 1: []}, inhibition='distributed')
+    assert (w == np.array([[0, 1], [-1, 0]])).all()
+    w = creator.graph_to_weights({0: [1, 2], 1: [0]}, inhibition='distributed')
+    assert (w == np.array([[0, 1, 1], [1, 0, -1], [-1, -1, 0]])).all()
 
 
 def test_weights_in():
