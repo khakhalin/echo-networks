@@ -7,22 +7,28 @@ class Reservoir(object):
 
     Args:
         n_nodes (int): Number of processing neurons in internal reservoir
+        n_edges (int): Number of edges. Default = n_nodes*2
         network_type (str): ws, erdos
         leak (float):  leakage for reservoir state update. Default=0.95
         alpha (float): integration step. Default=0.05
         inhibition (str): alternating (default), distributed, none
     """
 
-    def __init__(self, n_nodes=20, network_type='ws', leak=0.95, alpha=0.05, inhibition='alternating'):
+    def __init__(self, n_nodes=20, n_edges=None,
+                 network_type='ws', leak=0.95, alpha=0.05,
+                 inhibition='alternating', weights_in='alternating'):
         self.n_nodes = n_nodes
         self.network_type = network_type
         self.leak = leak
         self.alpha = alpha
 
+        if n_edges is None:
+            n_edges = n_nodes*2 if n_nodes>3 else 2  # Heuristic that doesn't break for very small n_edges
+
         # Creator is a stateless all-static-methods utility class
-        self.graph = creator.make_graph(n_nodes, network_type=network_type)
+        self.graph = creator.make_graph(n_nodes, n_edges=n_edges, network_type=network_type)
         self.weights = creator.graph_to_weights(self.graph, n_nodes, inhibition=inhibition)
-        self.weights_in = creator.weights_in(n_nodes)
+        self.weights_in = creator.weights_in(n_nodes, weights_in)
         self.input_norm = None       # Inputs should be normalized
         self.weights_out = None      # Originally the model is not fit
         self.bias_out = None         # Intercept.

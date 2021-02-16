@@ -8,7 +8,7 @@ def make_graph(n_nodes=20, n_edges=None, network_type='erdos'):
     n_edges: number of edges (optinal)
     network_tpe: 'erdos', 'ws' (for Watts-Strogatz; default)
     """
-    if not n_edges:
+    if n_edges is None:
         n_edges = n_nodes*2
     if network_type == 'erdos':
         graph_dict = _make_erdos(n_nodes, n_edges)
