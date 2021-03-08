@@ -1,5 +1,6 @@
 import pytest
 from esn import create_reservoir as creator
+from esn.create_reservoir.graph_to_weights import _spectral_radius
 from esn import utils
 import numpy as np
 
@@ -21,9 +22,18 @@ def test_activation_functions():
     assert f(1) == np.tanh(1)
 
 
+def test_spectral_radius():
+    assert _spectral_radius(1) == 1
+    assert _spectral_radius(np.array([[1,0],[0,1]])) == 1
+    assert _spectral_radius(np.array([[2, 0], [0, 1]])) == 2
+    assert _spectral_radius(np.array([[0,0],[0,0]])) == 0
+
+
 def test_graph_to_weights():
     w = creator.graph_to_weights({0: [1], 1:[0]}, inhibition='none')
     assert (w == np.array([[0, 1], [1, 0]])).all()
+    w = creator.graph_to_weights({0: [1], 1: [0]}, inhibition='none', rho=0.9) # rho should scale this one
+    assert (w == 0.9*np.array([[0, 1], [1, 0]])).all()
     w = creator.graph_to_weights({0: [1,0], 1: [0]}, inhibition='none') # Loops should be removed
     assert (w == np.array([[0, 1], [1, 0]])).all()
     w = creator.graph_to_weights({0: [1,2], 1: [0]}, inhibition='alternating')
@@ -39,3 +49,4 @@ def test_weights_in():
     assert (w == np.array([1, 1])).all()
     w = creator.weights_in(2, 'alternating')
     assert (w == np.array([-1, 1])).all()
+

@@ -1,12 +1,14 @@
 import numpy as np
+import scipy.linalg as spla
 from esn.utils import utils
 
 
-def graph_to_weights(graph_dict, n_nodes=None, inhibition='alternating'):
+def graph_to_weights(graph_dict, n_nodes=None, rho=None, inhibition='alternating'):
     """Creates a numpy weights matrix from a graph.
 
     parameters:
     graph_dict: a dictionary defining the graph
+    rho: target spectral radius. Default=None (no adjustment)
     inhibition (string): how to introduce inhibition. Options include:
         'none' - no inhibition
         'alternating' - checkerboard pattern, with even edges excitatory
@@ -32,4 +34,21 @@ def graph_to_weights(graph_dict, n_nodes=None, inhibition='alternating'):
         i = range(n_nodes)
 
     weights[i,i] = 0  # No self-inhibition (we already have leak)
+    if rho is not None:  # Need to correct spectral radius
+        sr = _spectral_radius(weights)
+        if sr != 0:
+            weights = weights/sr*rho
+        else:
+            pass  # This matrix is hopeless as a weight matrix, but at least let's not divide by 0
     return weights
+
+
+def _spectral_radius(mat):
+    """Calculates spectral radius of a matrix."""
+    if isinstance(mat, float) or isinstance(mat, int):
+        mat = np.array([[mat]])
+    n = mat.shape[0]
+    # r = spla.eigh(mat, eigvals_only=True, subset_by_index=(n-1)) # Once scipy is updated to 1.6.1
+    # r = spla.eigh(mat, eigvals_only=True, eigvals=(n-1, n-1))
+    r = max(np.linalg.eigvals(mat))
+    return np.real(r)  # I'm not sure it's in the definition, but feels right in this context?
