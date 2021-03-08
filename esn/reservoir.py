@@ -10,12 +10,12 @@ class Reservoir(object):
         n_edges (int): Number of edges. Default = n_nodes*2
         network_type (str): ws, erdos
         leak (float):  leak (aka alpha) for reservoir state update. Default=0.05
-        rho (float): target spectral radius. Default=0.95
+        rho (float): target spectral radius. Default=0.8. Set to None for no spectral rescaling.
         inhibition (str): alternating (default), distributed, none
     """
 
     def __init__(self, n_nodes=20, n_edges=None, network_type='ws',
-                 leak=0.05, rho=0.95,
+                 leak=0.05, rho=0.8,
                  inhibition='alternating', weights_in='alternating'):
         self.n_nodes = n_nodes
         self.network_type = network_type
@@ -25,8 +25,10 @@ class Reservoir(object):
             n_edges = n_nodes*2 if n_nodes>3 else 2  # Heuristic that doesn't break for very small n_edges
 
         # Creator is a stateless all-static-methods utility class
+        self.meta = {}
         self.graph = creator.make_graph(n_nodes, n_edges=n_edges, network_type=network_type)
-        self.weights = creator.graph_to_weights(self.graph, n_nodes, inhibition=inhibition, rho=rho)
+        self.weights, spectral_radius = creator.graph_to_weights(self.graph, n_nodes, inhibition=inhibition, rho=rho)
+        self.meta['original_rho'] = spectral_radius
         self.weights_in = creator.weights_in(n_nodes, weights_in)
         self.input_norm = None       # Inputs should be normalized
         self.weights_out = None      # Originally the model is not fit

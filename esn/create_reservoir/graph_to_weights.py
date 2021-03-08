@@ -34,13 +34,11 @@ def graph_to_weights(graph_dict, n_nodes=None, rho=None, inhibition='alternating
         i = range(n_nodes)
 
     weights[i,i] = 0  # No self-inhibition (we already have leak)
+    sr = _spectral_radius(weights)
     if rho is not None:  # Need to correct spectral radius
-        sr = _spectral_radius(weights)
-        if sr != 0:
+        if sr != 0: # This matrix is hopeless as a weight matrix, but at least let's not divide by 0
             weights = weights/sr*rho
-        else:
-            pass  # This matrix is hopeless as a weight matrix, but at least let's not divide by 0
-    return weights
+    return weights, sr
 
 
 def _spectral_radius(mat):

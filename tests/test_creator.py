@@ -30,17 +30,17 @@ def test_spectral_radius():
 
 
 def test_graph_to_weights():
-    w = creator.graph_to_weights({0: [1], 1:[0]}, inhibition='none')
+    w,_ = creator.graph_to_weights({0: [1], 1:[0]}, inhibition='none')
     assert (w == np.array([[0, 1], [1, 0]])).all()
-    w = creator.graph_to_weights({0: [1], 1: [0]}, inhibition='none', rho=0.9) # rho should scale this one
+    w,_ = creator.graph_to_weights({0: [1], 1: [0]}, inhibition='none', rho=0.9) # rho should scale this one
     assert (w == 0.9*np.array([[0, 1], [1, 0]])).all()
-    w = creator.graph_to_weights({0: [1,0], 1: [0]}, inhibition='none') # Loops should be removed
+    w,_ = creator.graph_to_weights({0: [1,0], 1: [0]}, inhibition='none') # Loops should be removed
     assert (w == np.array([[0, 1], [1, 0]])).all()
-    w = creator.graph_to_weights({0: [1,2], 1: [0]}, inhibition='alternating')
+    w,_ = creator.graph_to_weights({0: [1,2], 1: [0]}, inhibition='alternating')
     assert (w == np.array([[0, 1, -1], [1, 0, 0], [0, 0, 0]])).all()
-    w = creator.graph_to_weights({0: [1], 1: []}, inhibition='distributed')
+    w,_ = creator.graph_to_weights({0: [1], 1: []}, inhibition='distributed')
     assert (w == np.array([[0, 1], [-1, 0]])).all()
-    w = creator.graph_to_weights({0: [1, 2], 1: [0]}, inhibition='distributed')
+    w,_ = creator.graph_to_weights({0: [1, 2], 1: [0]}, inhibition='distributed')
     assert (w == np.array([[0, 1, 1], [1, 0, -1], [-1, -1, 0]])).all()
 
 
