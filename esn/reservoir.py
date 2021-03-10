@@ -30,9 +30,9 @@ class Reservoir(object):
         self.weights, spectral_radius = creator.graph_to_weights(self.graph, n_nodes, inhibition=inhibition, rho=rho)
         self.meta['original_rho'] = spectral_radius
         self.weights_in = creator.weights_in(n_nodes, weights_in)
-        self.input_norm = None       # Inputs should be normalized
+        self.norm_input = None       # Inputs normalization: [mean std]
         self.weights_out = None      # Originally the model is not fit
-        self.bias_out = None         # Intercept.
+        self.norm_out = None         # Output normalization: [intercept std]
         self.activation = creator.activation('tanh')
 
         self.state = np.zeros(n_nodes)
@@ -45,7 +45,7 @@ class Reservoir(object):
         """Make 1 step forward, update reservoir state.
         If input is not provided, perform self-generation."""
         if not drive:
-            drive = self.state @ self.weights_out.T + self.bias_out  # Try to self-drive
+            drive = self.state @ self.weights_out.T * self.norm_out[1] + self.norm_out[0]  # Try to self-drive
         self.state = (self.state * (1-self.leak) +
                       self.leak * self.activation((self.weights.T @ self.state) +
                                                    self.weights_in * drive))
@@ -85,10 +85,10 @@ class Reservoir(object):
             y = y[:, np.newaxis]
         if skip is None:
             skip = min(self.n_nodes*4 , len(y) // 4)
-        self.input_norm = [np.mean(x), np.std(x)]
-        self.bias_out = np.mean(y)
-        history = self.run((x - self.input_norm[0])/self.input_norm[1])
-        self.weights_out = (((y[skip:].T - self.bias_out) @ history[skip:, :]) @
+        self.norm_input = [np.mean(x), np.std(x)]
+        self.norm_out = [np.mean(y), np.std(y)]
+        history = self.run((x - self.norm_input[0]) / self.norm_input[1])
+        self.weights_out = (((y[skip:].T - self.norm_out[0])/self.norm_out[1] @ history[skip:, :]) @
                             np.linalg.pinv(history[skip:, :].T @ history[skip:, :]))
         return self      # In scikit-learn style, fit is supposed to return self
 
@@ -106,5 +106,5 @@ class Reservoir(object):
             length = len(x)
         if self.weights_out is None:
             raise Exception('The model needs to be fit first.')
-        history = self. run((x - self.input_norm[0])/self.input_norm[1], length)
-        return (history @ self.weights_out.T + self.bias_out).squeeze()
+        history = self. run((x - self.norm_input[0]) / self.norm_input[1], length)
+        return (history @ self.weights_out.T * self.norm_out[1] + self.norm_out[0]).squeeze()

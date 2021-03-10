@@ -29,6 +29,15 @@ def test_spectral_radius():
     assert _spectral_radius(np.array([[0,0],[0,0]])) == 0
 
 
+def test_weights_in():
+    w = creator.weights_in(2, 'flat')
+    assert (w == np.array([1, 1])).all()
+    w = creator.weights_in(2, 'alternating')
+    assert (w == np.array([-1, 1])).all()
+    w = creator.weights_in(99)
+    assert w.shape[0] == 99
+
+
 def test_graph_to_weights():
     w,_ = creator.graph_to_weights({0: [1], 1:[0]}, inhibition='none')
     assert (w == np.array([[0, 1], [1, 0]])).all()
@@ -42,11 +51,4 @@ def test_graph_to_weights():
     assert (w == np.array([[0, 1], [-1, 0]])).all()
     w,_ = creator.graph_to_weights({0: [1, 2], 1: [0]}, inhibition='distributed')
     assert (w == np.array([[0, 1, 1], [1, 0, -1], [-1, -1, 0]])).all()
-
-
-def test_weights_in():
-    w = creator.weights_in(2, 'flat')
-    assert (w == np.array([1, 1])).all()
-    w = creator.weights_in(2, 'alternating')
-    assert (w == np.array([-1, 1])).all()
 
