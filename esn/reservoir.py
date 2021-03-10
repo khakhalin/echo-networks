@@ -1,4 +1,5 @@
 import numpy as np
+import sklearn.linear_model as lm
 from . import create_reservoir as creator
 
 
@@ -15,11 +16,12 @@ class Reservoir(object):
     """
 
     def __init__(self, n_nodes=20, n_edges=None, network_type='ws',
-                 leak=0.05, rho=0.8,
+                 leak=0.05, rho=0.9, l2=0.0,
                  inhibition='alternating', weights_in='alternating'):
         self.n_nodes = n_nodes
         self.network_type = network_type
         self.leak = leak
+        self.l2 = l2             # Ridge regression l2 regularization
 
         if n_edges is None:
             n_edges = n_nodes*2 if n_nodes>3 else 2  # Heuristic that doesn't break for very small n_edges
@@ -45,7 +47,7 @@ class Reservoir(object):
         """Make 1 step forward, update reservoir state.
         If input is not provided, perform self-generation."""
         if not drive:
-            drive = self.state @ self.weights_out.T * self.norm_out[1] + self.norm_out[0]  # Try to self-drive
+            drive = self.state @ self.weights_out * self.norm_out[1] + self.norm_out[0]  # Try to self-drive
         self.state = (self.state * (1-self.leak) +
                       self.leak * self.activation((self.weights.T @ self.state) +
                                                    self.weights_in * drive))
@@ -88,8 +90,15 @@ class Reservoir(object):
         self.norm_input = [np.mean(x), np.std(x)]
         self.norm_out = [np.mean(y), np.std(y)]
         history = self.run((x - self.norm_input[0]) / self.norm_input[1])
-        self.weights_out = (((y[skip:].T - self.norm_out[0])/self.norm_out[1] @ history[skip:, :]) @
-                            np.linalg.pinv(history[skip:, :].T @ history[skip:, :]))
+        if self.l2 is None:  # Simple regression
+            self.weights_out = (np.linalg.pinv(history[skip:, :].T @ history[skip:, :]) @
+                                (history[skip:, :].T @ (y[skip:] - self.norm_out[0])/self.norm_out[1])
+                                )
+        else:  # Ridge regression
+            y_norm = (y - self.norm_out[0])/self.norm_out[1]
+            clf = lm.Ridge(alpha=self.l2, fit_intercept=False)
+            clf.fit(history, y_norm)  # <-        HERE THIS IS WRONG FOR NOW
+            self.weights_out = clf.coef_.T
         return self      # In scikit-learn style, fit is supposed to return self
 
 
@@ -107,4 +116,4 @@ class Reservoir(object):
         if self.weights_out is None:
             raise Exception('The model needs to be fit first.')
         history = self. run((x - self.norm_input[0]) / self.norm_input[1], length)
-        return (history @ self.weights_out.T * self.norm_out[1] + self.norm_out[0]).squeeze()
+        return (history @ self.weights_out * self.norm_out[1] + self.norm_out[0]).squeeze()

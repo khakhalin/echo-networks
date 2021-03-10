@@ -22,10 +22,11 @@ def test_reservoir_predict():
     x, y = data.generate(100)
     model = Reservoir(100)
     model.fit(x, y)
-    z = model.predict(x)  # Default case, predict full x length
+    z = model.predict(x)  # Default case: use x as input predict full length of y
     assert len(z) == len(x)
-    z = model.predict(x, 50)  # Truncate earlier
+    z = model.predict(x, 50)  # Truncate early (only generate a few)
     assert len(z) == 50
-    model.fit(x, x)            # Technically not necessary for this test, but that's how it needs to be used
-    z = model.predict(x, 500)  # Load x, then generate some more
+
+    model.fit(x, x)  # Auto-generator mode (continuing the signal)
+    z = model.predict(x, 500)  # Load x, then generate its continuation for 400 time points
     assert len(z) == 500
