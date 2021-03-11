@@ -2,6 +2,9 @@ import numpy as np
 import sklearn.linear_model as lm
 from . import create_reservoir as creator
 
+import warnings
+from scipy.linalg import LinAlgWarning
+
 
 class Reservoir(object):
     """ Create a echo-networks model with the predefined tuning.
@@ -16,7 +19,7 @@ class Reservoir(object):
     """
 
     def __init__(self, n_nodes=20, n_edges=None, network_type='ws',
-                 leak=0.05, rho=0.9, l2=0.0,
+                 leak=0.05, rho=0.9, l2=0.01,
                  inhibition='alternating', weights_in='alternating'):
         self.n_nodes = n_nodes
         self.network_type = network_type
@@ -97,7 +100,12 @@ class Reservoir(object):
         else:  # Ridge regression
             y_norm = (y - self.norm_out[0])/self.norm_out[1]
             clf = lm.Ridge(alpha=self.l2, fit_intercept=False)
-            clf.fit(history, y_norm)  # <-        HERE THIS IS WRONG FOR NOW
+            warnings.filterwarnings(action='ignore', category=LinAlgWarning, module='sklearn')
+            # It's a dirty trick, but because many of our random matrices are poorly defined,
+            # for WS graphs at least this regression spews warnings way too often.
+            # If a matrix is bad, it is bad, that's ok; no need to shame us.
+            clf.fit(history, y_norm)
+            warnings.filterwarnings(action='default', category=LinAlgWarning, module='sklearn')
             self.weights_out = clf.coef_.T
         return self      # In scikit-learn style, fit is supposed to return self
 
