@@ -16,10 +16,11 @@ class Reservoir(object):
         leak (float):  leak (aka alpha) for reservoir state update. Default=0.05
         rho (float): target spectral radius. Default=0.8. Set to None for no spectral rescaling.
         inhibition (str): alternating (default), distributed, none
+        weights_in (str): alternating (default), flat
     """
 
     def __init__(self, n_nodes=20, n_edges=None, network_type='erdos',
-                 leak=0.1, rho=0.9, l2=0.001,
+                 leak=0.1, rho=0.8, l2=0.0001,
                  inhibition='alternating', weights_in='alternating'):
         self.n_nodes = n_nodes
         self.network_type = network_type
@@ -27,8 +28,8 @@ class Reservoir(object):
         self.l2 = l2             # Ridge regression l2 regularization
 
         if n_edges is None:
-            n_edges = max([2, 2*self.n_nodes,
-                           int(round(self.n_nodes*(self.n_nodes-1)*0.1))])  # Reasonable heuristic
+            n_edges = max([2, 3*self.n_nodes,
+                           int(round(self.n_nodes*(self.n_nodes-1)*0.2))])  # Reasonable heuristic
 
         # Creator is a stateless all-static-methods utility class
         self.meta = {}
@@ -102,8 +103,8 @@ class Reservoir(object):
             y_norm = (y - self.norm_out[0])/self.norm_out[1]
             clf = lm.Ridge(alpha=self.l2, fit_intercept=False)
             warnings.filterwarnings(action='ignore', category=LinAlgWarning, module='sklearn')
-            # It's a dirty trick, but because many of our random matrices are poorly defined,
-            # for WS graphs at least this regression spews warnings way too often.
+            # Suppressing warnings is a dirty trick, but many of our random matrices are poorly defined,
+            # so for WS graphs at least this regression spews warnings way too often.
             # If a matrix is bad, it is bad, that's ok; no need to shame us.
             clf.fit(history, y_norm)
             warnings.filterwarnings(action='default', category=LinAlgWarning, module='sklearn')
