@@ -18,8 +18,8 @@ class Reservoir(object):
         inhibition (str): alternating (default), distributed, none
     """
 
-    def __init__(self, n_nodes=20, n_edges=None, network_type='ws',
-                 leak=0.05, rho=0.9, l2=0.01,
+    def __init__(self, n_nodes=20, n_edges=None, network_type='erdos',
+                 leak=0.1, rho=0.9, l2=0.001,
                  inhibition='alternating', weights_in='alternating'):
         self.n_nodes = n_nodes
         self.network_type = network_type
@@ -27,7 +27,8 @@ class Reservoir(object):
         self.l2 = l2             # Ridge regression l2 regularization
 
         if n_edges is None:
-            n_edges = n_nodes*2 if n_nodes>3 else 2  # Heuristic that doesn't break for very small n_edges
+            n_edges = max([2, 2*self.n_nodes,
+                           int(round(self.n_nodes*(self.n_nodes-1)*0.1))])  # Reasonable heuristic
 
         # Creator is a stateless all-static-methods utility class
         self.meta = {}

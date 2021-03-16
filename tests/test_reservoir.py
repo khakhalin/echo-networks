@@ -6,7 +6,7 @@ import numpy as np
 def test_reservoir_integration():
     """Integration test, minimal case, mostly with defaults."""
     data = Data.create_source('lorenz')
-    x,y = data.generate(1000)
+    x,y = data.generate(10000)
     model = Reservoir(100)
     points_to_skip = 200
     model.fit(x, y, skip=points_to_skip)
