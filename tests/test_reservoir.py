@@ -6,8 +6,8 @@ import numpy as np
 def test_reservoir_integration():
     """Integration test, minimal case, mostly with defaults."""
     data = Data.create_source('lorenz')
-    x,y = data.generate(10000)
-    model = Reservoir(100)
+    x,y = data.generate(1000)     # Intentionally overfitting, so very short training
+    model = Reservoir(100, l2=0)  # ... and no regularization
     points_to_skip = 200
     model.fit(x, y, skip=points_to_skip)
     z = model.predict(x)
