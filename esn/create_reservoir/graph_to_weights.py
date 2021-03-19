@@ -22,6 +22,8 @@ def graph_to_weights(graph_dict, n_nodes=None, rho=None, inhibition='alternating
     edges = [(i,j) for i,j in utils.edges(graph_dict) if i != j]  # Remove loops
     for (i,j) in edges:
         weights[i, j] = 1   # The matrix is not flipped!
+    for i in range(weights.shape[0]):
+        weights[i,i] = 0  # No self-inhibition (we already have leak)
 
     if inhibition == 'alternating':
         for i in range(n_nodes):
@@ -33,7 +35,19 @@ def graph_to_weights(graph_dict, n_nodes=None, rho=None, inhibition='alternating
         weights = weights*(1 + strength) - strength
         i = range(n_nodes)
 
-    weights[i,i] = 0  # No self-inhibition (we already have leak)
+    elif inhibition == 'balanced':     # TODO: WRITE A TEST FOR IT!
+        total_input = np.sum(weights, axis=1)
+        total_input = total_input / np.maximum((weights.shape[0] - 1 - total_input), 1)
+        weights * (1 + total_input[:, np.newaxis]) - total_input[:, np.newaxis]
+
+    elif inhibition is None:
+        pass # Explicitly do nothing
+    else:
+        raise(ValueError(f'Unrecognized inhibition type: {inhibition}'))
+
+    for i in range(weights.shape[0]):
+        weights[i,i] = 0  # Cleanup the diagonal once again (some methods above spoil it)
+
     sr = _spectral_radius(weights)
     if rho is not None:  # Need to correct spectral radius
         if sr != 0: # This matrix is hopeless as a weight matrix, but at least let's not divide by 0
