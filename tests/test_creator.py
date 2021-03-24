@@ -39,7 +39,10 @@ def test_weights_in():
 
 
 def test_graph_to_weights():
+    # Weights table is graph-style, not operator-style: w_ij = w(j-->i)
     w,_ = creator.graph_to_weights({0: [1], 1:[0]}, inhibition=None)
+    assert (w == np.array([[0, 1], [1, 0]])).all()
+    w, _ = creator.graph_to_weights({0: [0, 1], 1: [0]}, inhibition=None)
     assert (w == np.array([[0, 1], [1, 0]])).all()
     w,_ = creator.graph_to_weights({0: [1], 1: [0]}, inhibition=None, rho=0.9) # rho should scale this one
     assert (w == 0.9*np.array([[0, 1], [1, 0]])).all()
@@ -49,8 +52,18 @@ def test_graph_to_weights():
     assert (w == np.array([[0, 1, -1], [1, 0, 0], [0, 0, 0]])).all()
     w,_ = creator.graph_to_weights({0: [1], 1: []}, inhibition='distributed')
     assert (w == np.array([[0, 1], [-1, 0]])).all()
+    assert (sum(sum(w)) == 0)
     w,_ = creator.graph_to_weights({0: [1, 2], 1: [0]}, inhibition='distributed')
     assert (w == np.array([[0, 1, 1], [1, 0, -1], [-1, -1, 0]])).all()
-    #w, _ = creator.graph_to_weights({0: [], 1: [0]}, inhibition='distributed')
-    #assert (w == np.array([[0, 1, 1], [1, 0, -1], [-1, -1, 0]])).all()
+    assert (sum(sum(w)) == 0)
+    w, _ = creator.graph_to_weights({0: [1, 2], 1: [0]}, inhibition='balanced_in')
+    assert (w == np.array([[0, 1, 1], [1, 0, -1], [-1, -1, 0]])).all()
+    w, _ = creator.graph_to_weights({0: [1, 3], 1: [2,3], 2: [0,1,3]}, inhibition='balanced_in')
+    # I'll write a transposed matrix below, just cos it's easier. sum inputs ==0 for all qualified nodes
+    assert (w == np.array([[0,-0.5,1,-0.5],[1,0,1,-2],[-0.5,1,0,-0.5],[1,1,1,0]]).T).all()
+    w, _ = creator.graph_to_weights({0: [1, 2], 1: [0]}, inhibition='balanced_out')
+    assert (w == np.array([[0, 1, 1], [1, 0, -1], [0, 0, 0]])).all()
+    w, _ = creator.graph_to_weights({0: [1, 3], 1: [2, 3], 2: [0, 1, 3]}, inhibition='balanced_out')
+    assert (w == np.array([[0, 1, -2, 1], [-2, 0, 1, 1], [1, 1, 0, 1], [0, 0, 0, 0]])).all()
+
 

@@ -31,14 +31,22 @@ def graph_to_weights(graph_dict, n_nodes=None, rho=None, inhibition='alternating
                 weights[i,j] *= ((i+j) % 2)*2 - 1 # Checkerboard
 
     elif inhibition == 'distributed':
+        # Sum across the entire matrix ==0
         strength = len(edges)/(n_nodes*(n_nodes-1)-len(edges))
         weights = weights*(1 + strength) - strength
         i = range(n_nodes)
 
-    elif inhibition == 'balanced':     # TODO: WRITE A TEST FOR IT!
+    elif inhibition == 'balanced_in':
+        # Sum converging on each neuron ==0, unless all edges are either 1 or 0
+        total_input = np.sum(weights, axis=0)
+        total_input = total_input / np.maximum((weights.shape[0] - 1 - total_input), 1)
+        weights = weights * (1 + total_input[np.newaxis, :]) - total_input[np.newaxis, :]
+
+    elif inhibition == 'balanced_out':
+        # Sum of outputs of each neuron ==0 (unless out_edges are either all 1 or all 0)
         total_input = np.sum(weights, axis=1)
         total_input = total_input / np.maximum((weights.shape[0] - 1 - total_input), 1)
-        weights * (1 + total_input[:, np.newaxis]) - total_input[:, np.newaxis]
+        weights = weights * (1 + total_input[:, np.newaxis]) - total_input[:,np.newaxis]
 
     elif inhibition is None:
         pass # Explicitly do nothing
